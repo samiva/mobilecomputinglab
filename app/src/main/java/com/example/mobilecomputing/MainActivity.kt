@@ -19,12 +19,22 @@ class MainActivity : AppCompatActivity() {
                 fab_time.animate().translationY(-resources.getDimension(R.dimen.standard_116))
             }
             else{
+                fabopened = false
                 fab_map.animate().translationY(0F)
                 fab_time.animate().translationY(0F)
             }
         }
         test_btn.setOnClickListener{
             val intent = Intent(applicationContext, TimeActivity::class.java)
+        }
+
+        fab_time.setOnClickListener {
+            val intent = Intent(applicationContext, TimeActivity::class.java)
+            startActivity(intent)
+        }
+
+        fab_map.setOnClickListener{
+            val intent = Intent(applicationContext, MapActivity::class.java)
         }
     }
 }
