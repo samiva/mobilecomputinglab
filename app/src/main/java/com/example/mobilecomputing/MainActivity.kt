@@ -11,7 +11,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         var fabopened = false
-
+        fab_time.translationY = 0F
+        fab_map.translationY = 0F
         fab.setOnClickListener{
             if(!fabopened) {
                 fabopened = true
