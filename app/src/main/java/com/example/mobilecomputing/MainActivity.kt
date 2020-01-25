@@ -25,9 +25,7 @@ class MainActivity : AppCompatActivity() {
                 fab_time.animate().translationY(0F)
             }
         }
-        test_btn.setOnClickListener{
-            val intent = Intent(applicationContext, TimeActivity::class.java)
-        }
+
 
         fab_time.setOnClickListener {
             val intent = Intent(applicationContext, TimeActivity::class.java)
@@ -36,6 +34,7 @@ class MainActivity : AppCompatActivity() {
 
         fab_map.setOnClickListener{
             val intent = Intent(applicationContext, MapActivity::class.java)
+            startActivity(intent)
         }
     }
 }
