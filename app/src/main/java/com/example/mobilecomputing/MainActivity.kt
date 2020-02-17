@@ -1,8 +1,14 @@
 package com.example.mobilecomputing
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.AdapterView
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.get
 import androidx.room.Room
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
@@ -40,9 +46,32 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(applicationContext, MapActivity::class.java)
             startActivity(intent)
         }
+        mylist.onItemClickListener = AdapterView.OnItemClickListener{_,_, position, _->
+            val selected =mylist.adapter.getItem(position) as Reminder
 
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Delete reminder?")
+                .setMessage(selected.message)
+                .setPositiveButton("Delete" ){_,_->
 
-
+                    if(selected.time != null) {
+                        val manager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                        val intent = Intent(this, ReminderReceiver::class.java)
+                        val pending = PendingIntent.getBroadcast(this, selected.uid!!, intent, PendingIntent.FLAG_ONE_SHOT)
+                        manager.cancel(pending)
+                    }
+                    doAsync {
+                        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "reminders").build()
+                       // db.reminderDao().delete(selected.uid!!)
+                        db.close()
+                        refreshList()
+                    }
+                }
+                .setNegativeButton("Cancel"){dialog,_->
+                    dialog.dismiss()
+                }
+                .show()
+        }
     }
 
     override fun onResume() {

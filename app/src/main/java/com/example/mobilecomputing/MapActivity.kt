@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.room.Room
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -52,8 +53,12 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             )
 
             doAsync {
-                // TODO: Check lab 5 @1:34 for code
+                val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java,"reminders").build()
+                db.reminderDao().insert(reminder)
+                db.close()
+
             }
+            finish()
         }
 
     }

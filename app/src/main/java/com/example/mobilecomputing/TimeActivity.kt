@@ -36,7 +36,7 @@ class TimeActivity : AppCompatActivity() {
                 )
 
                 doAsync {
-                    val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "remiders").build()
+                    val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "reminders").build()
                     db.reminderDao().insert(reminder)
                     db.close()
 
