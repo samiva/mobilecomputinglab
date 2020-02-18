@@ -1,19 +1,24 @@
 package com.example.mobilecomputing
 
 import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.AdapterView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.NotificationCompat
 import androidx.core.view.get
 import androidx.room.Room
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
 
@@ -94,5 +99,27 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    companion object {
+        fun showNotification(context: Context, message:String) {
+            val CHANNEL_ID= "REMINDER_CHANNEL_ID"
+            var NotificationID=1567
+            var notificationBuilder=NotificationCompat.Builder(context,CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_alarm_24px)
+                .setContentTitle(context.getString(R.string.app_name)).setContentText(message).setStyle(NotificationCompat.BigTextStyle().bigText(message))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+            var notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel=NotificationChannel(CHANNEL_ID, "Reminder",NotificationManager.IMPORTANCE_DEFAULT).apply{description="Reminde"}
+                notificationManager.createNotificationChannel(channel)
+            }
+            val notification = NotificationID+ Random(NotificationID).nextInt(1,30)
+            notificationManager.notify(notification,notificationBuilder.build())
+        }
+
+
     }
 }
