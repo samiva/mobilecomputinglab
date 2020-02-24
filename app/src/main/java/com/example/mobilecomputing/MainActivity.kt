@@ -117,9 +117,8 @@ class MainActivity : AppCompatActivity() {
                 notificationManager.createNotificationChannel(channel)
             }
             val notification = NotificationID+ Random(NotificationID).nextInt(1,30)
+
             notificationManager.notify(notification,notificationBuilder.build())
         }
-
-
     }
 }

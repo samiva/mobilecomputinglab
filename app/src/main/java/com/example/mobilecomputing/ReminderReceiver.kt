@@ -10,8 +10,9 @@ import org.jetbrains.anko.toast
 class ReminderReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val text = intent.getStringExtra("message")
+
+    val uid = intent.getIntExtra("uid", 0)
         context.toast(text!!)
-    val uid =
         MainActivity.showNotification(context,text!!)
 
         doAsync{
