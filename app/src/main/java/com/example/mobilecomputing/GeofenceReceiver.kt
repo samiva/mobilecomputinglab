@@ -14,7 +14,7 @@ class GeofenceReceiver: BroadcastReceiver() {
         if(geofencingTransition==Geofence.GEOFENCE_TRANSITION_ENTER
             || geofencingTransition==Geofence.GEOFENCE_TRANSITION_DWELL){
             var uid=intent!!.getIntExtra("uid", 0)
-            var text=intent.getStringExtra("message")
+            val text=intent.getStringExtra("message")
 
             MainActivity.showNotification(context!!,text)
         }

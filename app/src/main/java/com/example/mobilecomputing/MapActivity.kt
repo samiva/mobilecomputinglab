@@ -36,15 +36,15 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     val GEOFENCEID: String = "REMINDER_GEOFENCE_ID"
     val GEOFENCE_RADIUS = 500.0f
-    val GEONFENCE_EXPIRATION = 120*24*60*60*1000
-    val GEOFENCE_DWELL_DELAY = 2*60*1000
+    val GEONFENCE_EXPIRATION = 120 * 24 * 60 * 60 * 1000
+    val GEOFENCE_DWELL_DELAY = 2 * 60 * 1000
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
 
         (map_fragment as SupportMapFragment).getMapAsync(this)
-
+        geofencingClient = LocationServices.getGeofencingClient(this)
 
         // TODO: map stuff
         map_create.setOnClickListener {
@@ -73,7 +73,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 val db =
                     Room.databaseBuilder(applicationContext, AppDatabase::class.java, "reminders")
                         .build()
-                val uid=db.reminderDao().insert(reminder).toInt()
+                val uid = db.reminderDao().insert(reminder).toInt()
                 reminder.uid = uid
                 db.close()
                 createGeoFence(selectedLocation, reminder, geofencingClient)
@@ -83,20 +83,33 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
-    private fun createGeoFence(selectedLocation:LatLng, reminder:Reminder, geofencingClient: GeofencingClient) {
+    private fun createGeoFence(
+        selectedLocation: LatLng,
+        reminder: Reminder,
+        geofencingClient: GeofencingClient
+    ) {
 
-        val geofence = Geofence.Builder().setRequestId(GEOFENCEID).setCircularRegion(selectedLocation.latitude,selectedLocation.longitude, GEOFENCE_RADIUS)
+        val geofence = Geofence.Builder().setRequestId(GEOFENCEID).setCircularRegion(
+            selectedLocation.latitude,
+            selectedLocation.longitude,
+            GEOFENCE_RADIUS
+        )
             .setExpirationDuration(GEONFENCE_EXPIRATION.toLong()).setTransitionTypes(
-                Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_DWELL)
+                Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_DWELL
+            )
             .setLoiteringDelay(GEOFENCE_DWELL_DELAY).build()
-            val geofenceRequest = GeofencingRequest.Builder().setInitialTrigger(Geofence.GEOFENCE_TRANSITION_ENTER).addGeofence(geofence).build()
-        val intent = Intent(this,GeofenceReceiver::class.java).putExtra("uid", reminder.uid)
+        val geofenceRequest =
+            GeofencingRequest.Builder().setInitialTrigger(Geofence.GEOFENCE_TRANSITION_ENTER)
+                .addGeofence(geofence).build()
+        val intent = Intent(this, GeofenceReceiver::class.java).putExtra("uid", reminder.uid)
             .putExtra("message", reminder.message)
-            .putExtra("location",reminder.location)
-        val pendingIntent = PendingIntent.getBroadcast(applicationContext,
+            .putExtra("location", reminder.location)
+        val pendingIntent = PendingIntent.getBroadcast(
+            applicationContext,
             0,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         geofencingClient.addGeofences(geofenceRequest, pendingIntent)
     }
@@ -111,11 +124,13 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 grantResults[1] == PackageManager.PERMISSION_DENIED
             ) {
                 toast("Needs all the permissions")
+            } else {
+                gMap.isMyLocationEnabled = true;
             }
 
-            if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.Q) {
-                if(grantResults[2] == PackageManager.PERMISSION_DENIED)
-                toast("Needs all the permissions")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (grantResults[2] == PackageManager.PERMISSION_DENIED)
+                    toast("Needs all the permissions")
             }
         }
     }
@@ -141,19 +156,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                     with(gMap) {
                         animateCamera(CameraUpdateFactory.newLatLngZoom(latLong, 13f))
                     }
-                } else {
-                    var permission = mutableListOf<String>()
-                    permission.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    permission.add(android.Manifest.permission.ACCESS_COARSE_LOCATION)
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        permission.add(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                    }
-                    ActivityCompat.requestPermissions(
-                        this,
-                        permission.toTypedArray(),
-                        123
-                    )
                 }
 
                 gMap.setOnMapClickListener { location: LatLng ->
@@ -175,13 +177,35 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                             addMarker(MarkerOptions().position(location).snippet(title).title(city))
                         marker.showInfoWindow()
 
-                        addCircle(CircleOptions().center(location)
-                            .strokeColor(Color.argb(50, 70,70,70))
-                            .fillColor(Color.argb(100,150,150,150)))
+                        addCircle(
+                            CircleOptions().center(location)
+                                .strokeColor(Color.argb(50, 70, 70, 70))
+                                .fillColor(
+                                    Color.argb(
+                                        100,
+                                        150,
+                                        150,
+                                        150
+                                    )
+                                ).radius(GEOFENCE_RADIUS.toDouble())
+                        )
                         selectedLocation = location
                     }
                 }
             }
+        } else {
+            var permission = mutableListOf<String>()
+            permission.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
+            permission.add(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                permission.add(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            }
+            ActivityCompat.requestPermissions(
+                this,
+                permission.toTypedArray(),
+                123
+            )
         }
     }
 }
